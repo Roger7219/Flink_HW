@@ -15,14 +15,15 @@ import org.apache.flink.util.Collector;
  */
 public class StreamUnBoundedWordCount {
     public static void main(String[] args) throws Exception {
+        
         // 1. 创建流的环境
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         // 2. 读取数据: 无界流和有界流
-        final DataStreamSource<String> lineStream = env.socketTextStream("hadoop162", 9999);
-    
+        DataStreamSource<String> lineStream = env.socketTextStream("hadoop162", 9999);
+        
         // 3. 各种转换
-        final SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOneStream = lineStream.flatMap(new FlatMapFunction<String, Tuple2<String, Long>>() {
+        SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOneStream = lineStream.flatMap(new FlatMapFunction<String, Tuple2<String, Long>>() {
             @Override
             public void flatMap(String line, Collector<Tuple2<String, Long>> out) throws Exception {
                 for (String word : line.split(" ")) {
@@ -32,13 +33,13 @@ public class StreamUnBoundedWordCount {
         });
         
         // keyBy数据类型不会做任何的变化
-        final KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOneStream.keyBy(new KeySelector<Tuple2<String, Long>, String>() {
+        KeyedStream<Tuple2<String, Long>, String> wordAndOneKS = wordAndOneStream.keyBy(new KeySelector<Tuple2<String, Long>, String>() {
             @Override
             public String getKey(Tuple2<String, Long> value) throws Exception {
                 return value.f0;
             }
         });
-        final SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS.sum(1);
+        SingleOutputStreamOperator<Tuple2<String, Long>> result = wordAndOneKS.sum(1);
         // 4. 打印结果
         result.print();
         // 5. 执行流环境
