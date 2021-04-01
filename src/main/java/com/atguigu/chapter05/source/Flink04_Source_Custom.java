@@ -1,4 +1,4 @@
-package com.atguigu.chapter05;
+package com.atguigu.chapter05.source;
 
 import com.atguigu.bean.WaterSensor;
 import org.apache.flink.configuration.Configuration;

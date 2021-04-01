@@ -1,4 +1,4 @@
-package com.atguigu.chapter05;
+package com.atguigu.chapter05.source;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
