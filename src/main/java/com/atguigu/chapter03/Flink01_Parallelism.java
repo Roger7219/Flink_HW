@@ -58,9 +58,9 @@ public class Flink01_Parallelism {
 4. 在每个算子上设置
 
 操作链的优化:
- 1. 算子是one-to-one
- 2. 并行度必须一样
- 
+    1. 算子是one-to-one
+    2. 并行度必须一样
+
  .startNewChain() 开启一个新的操作, 不和前面优化在一起
  .disableChaining() 对这个算子禁用操作连: 前后都不会优化在一起
  
