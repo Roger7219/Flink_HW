@@ -12,7 +12,7 @@ public class Flink01_Source_File {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         // 1. 可以是文件夹,  也可以是具体的文件
         // 2. 路径可以是相对路径也可以是绝对路径.

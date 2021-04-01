@@ -13,7 +13,7 @@ public class Flink04_KeyBy {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(2);
         
         DataStreamSource<Integer> stream = env.fromElements(1, 2, 3, 4, 4, 8, 9);

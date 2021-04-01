@@ -16,7 +16,7 @@ public class Flink01_Parallelism {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(2);
         env.disableOperatorChaining();
         

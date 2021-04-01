@@ -17,7 +17,7 @@ public class Flink03_Source_Kafka {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(2);
     
         Properties props = new Properties();
