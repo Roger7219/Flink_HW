@@ -50,8 +50,8 @@ public class Flink01_Project_PV_2 {
                 }
             })
             .print();
-           
-           
+
+
         
         
         try {
