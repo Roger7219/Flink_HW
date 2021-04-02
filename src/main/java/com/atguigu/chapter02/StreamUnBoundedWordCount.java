@@ -20,7 +20,7 @@ public class StreamUnBoundedWordCount {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         // 2. 读取数据: 无界流和有界流
-        DataStreamSource<String> lineStream = env.socketTextStream("hadoop162", 9999);
+        DataStreamSource<String> lineStream = env.socketTextStream("hadoop162", 9999).setParallelism(2);
         
         // 3. 各种转换
         SingleOutputStreamOperator<Tuple2<String, Long>> wordAndOneStream = lineStream.flatMap(new FlatMapFunction<String, Tuple2<String, Long>>() {
