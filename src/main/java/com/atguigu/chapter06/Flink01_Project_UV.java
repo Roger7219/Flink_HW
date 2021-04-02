@@ -58,7 +58,6 @@ public class Flink01_Project_UV {
                     if (uids.add(value.f1)) {
                         out.collect((long) uids.size());
                     }
-                    
                 }
             })
             .print();
