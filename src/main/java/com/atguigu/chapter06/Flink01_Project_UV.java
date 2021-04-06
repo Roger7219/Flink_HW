@@ -24,19 +24,15 @@ public class Flink01_Project_UV {
         
         env
             .readTextFile("input/UserBehavior.csv")
-            .flatMap(new FlatMapFunction<String, Tuple2<String, Long>>() {
-                @Override
-                public void flatMap(String line,
-                                    Collector<Tuple2<String, Long>> out) throws Exception {
-                    String[] data = line.split(",");
-                    UserBehavior ub = new UserBehavior(Long.valueOf(data[0]),
-                                                       Long.valueOf(data[1]),
-                                                       Integer.valueOf(data[2]),
-                                                       data[3],
-                                                       Long.valueOf(data[4]));
-                    if ("pv".equalsIgnoreCase(ub.getBehavior())) {
-                        out.collect(Tuple2.of("uv", ub.getUserId()));
-                    }
+            .flatMap((FlatMapFunction<String, Tuple2<String, Long>>) (line, out) -> {
+                String[] data = line.split(",");
+                UserBehavior ub = new UserBehavior(Long.valueOf(data[0]),
+                                                   Long.valueOf(data[1]),
+                                                   Integer.valueOf(data[2]),
+                                                   data[3],
+                                                   Long.valueOf(data[4]));
+                if ("pv".equalsIgnoreCase(ub.getBehavior())) {
+                    out.collect(Tuple2.of("uv", ub.getUserId()));
                 }
             })
             .keyBy(t -> t.f0)

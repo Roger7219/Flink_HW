@@ -1,6 +1,7 @@
 package com.atguigu.chapter05.transform;
 
 import com.atguigu.bean.WaterSensor;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -29,7 +30,7 @@ public class Flink08_Rolling_Agg {
             //            .sum("vc")
             //            .max("vc")
             //            .min("vc")
-//            .maxBy("vc", false)
+            .maxBy("vc", false)
             .print();
         
         try {
