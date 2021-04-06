@@ -58,6 +58,7 @@ public class Flink03_Project_Order {
                     if (txEventMap.containsKey(value.getTxId())) {
                         // 交易数据先到, 订单数据后到:  对账成功
                         out.collect("订单: " + value.getOrderId() + " 对账成功!");
+                        
                     } else {
                         // 订单数据先到, 交易数据可能后到, 也可能不来
                         // 把订单数据存入到map中
