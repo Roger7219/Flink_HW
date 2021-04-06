@@ -17,7 +17,7 @@ import java.time.Duration;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink013_WaterMark_Unorder {
+public class Flink013_WaterMark_UnOrder {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
