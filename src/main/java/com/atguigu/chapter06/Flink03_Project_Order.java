@@ -46,8 +46,9 @@ public class Flink03_Project_Order {
             .connect(txEventStream)
             .keyBy(OrderEvent::getTxId, TxEvent::getTxId)
             .process(new KeyedCoProcessFunction<String, OrderEvent, TxEvent, String>() {
-                HashMap<String, OrderEvent> orderEventMap = new HashMap<>();
-                HashMap<String, TxEvent> txEventMap = new HashMap<>();
+                //
+                private HashMap<String, OrderEvent> orderEventMap = new HashMap<>();
+                private HashMap<String, TxEvent> txEventMap = new HashMap<>();
                 
                 @Override
                 public void processElement1(OrderEvent value,
@@ -72,7 +73,7 @@ public class Flink03_Project_Order {
                                             Collector<String> out) throws Exception {
                     if (orderEventMap.containsKey(value.getTxId())) {
                         out.collect("订单: " + orderEventMap.get(value.getTxId()).getOrderId() + " 对账成功!");
-                    }else{
+                    } else {
                         txEventMap.put(value.getTxId(), value);
                     }
                     
