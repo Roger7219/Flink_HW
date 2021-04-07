@@ -14,7 +14,7 @@ import org.apache.flink.util.Collector;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink014_WaterMark_Custom {
+public class Flink14_WaterMark_Custom {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
