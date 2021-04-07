@@ -67,6 +67,7 @@ public class Flink01_State_Operator_List {
 //            countState = ctx.getOperatorStateStore().getListState(new ListStateDescriptor<Long>("countState", Long.class));
             // 把状态合并, 分发到每个并行度
             countState = ctx.getOperatorStateStore().getUnionListState(new ListStateDescriptor<Long>("countState", Long.class));
+            
             // 把状态中的值读出赋值给变量
             Iterator<Long> it = countState.get().iterator();
             if (it.hasNext()) {
