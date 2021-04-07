@@ -4,12 +4,14 @@ import com.atguigu.bean.WaterSensor;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.OutputTag;
 
 import java.time.Duration;
 
@@ -17,14 +19,17 @@ import java.time.Duration;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink015_WaterMark_AllowLateness {
+public class Flink16_WaterMark_SideOutput_2 {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         env.setParallelism(1);
         
-        env
+        OutputTag<WaterSensor> outputTagS2 = new OutputTag<WaterSensor>("sensor_2") {};
+        OutputTag<WaterSensor> outputTagS3 = new OutputTag<WaterSensor>("other_sensor") {};
+        
+        SingleOutputStreamOperator<String> main = env
             .socketTextStream("hadoop162", 9999)
             .map(line -> {
                 String[] data = line.split(",");
@@ -46,26 +51,36 @@ public class Flink015_WaterMark_AllowLateness {
             )
             .keyBy(WaterSensor::getId)
             .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-            .allowedLateness(Time.seconds(2))
             .process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
                 @Override
                 public void process(String key,
                                     Context ctx,
                                     Iterable<WaterSensor> elements,
                                     Collector<String> out) throws Exception {
-                    int count = 0;
-                    for (WaterSensor ele : elements) {
-                        count++;
+                    // sensor_1 放入主流
+                    if ("sensor_1".equalsIgnoreCase(key)) {
+                        for (WaterSensor ele : elements) {
+                            out.collect(ele.toString());
+                        }
+                    } else if ("sensor_2".equalsIgnoreCase(key)) {
+                        // 使用侧输出流和窗口没有关系, 只要有context都可以使用.
+                        // sensor_2 放入侧输出流
+                        for (WaterSensor ele : elements) {
+                            ctx.output(outputTagS2, ele);
+                        }
+                        
+                    }else{
+                        for (WaterSensor ele : elements) {
+                            ctx.output(outputTagS3, ele);
+                        }
                     }
                     
-                    String msg = "当前key: " + key +
-                        "窗口: [ " + ctx.window().getStart() / 1000 + ", " + ctx.window().getEnd() / 1000 + "), " +
-                        "个数: " + count;
-                    out.collect(msg);
-                    
                 }
-            })
-            .print();
+            });
+        
+        main.print("main");
+        main.getSideOutput(outputTagS2).print("sensor_2");
+        main.getSideOutput(outputTagS3).print("other");
         
         try {
             env.execute();
@@ -74,15 +89,5 @@ public class Flink015_WaterMark_AllowLateness {
         }
     }
 }
-/*
-flink如果处理迟到数据(乱序)?
-1. 使用水印
-2. 允许迟到
-       时间到了, 先对窗口中的数据做计算, 但是窗口不关闭, 属于这个窗口数据来一条就计算一条
-       达到允许的时间就会关闭窗口, 以后迟到的数据就彻底进不了窗口
-       
-3. 放入侧输出流
 
-
- */
 

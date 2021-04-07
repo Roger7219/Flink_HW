@@ -14,7 +14,7 @@ import org.apache.flink.util.Collector;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink014_WaterMark_Custom_1 {
+public class Flink14_WaterMark_Custom {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
@@ -75,38 +75,22 @@ public class Flink014_WaterMark_Custom_1 {
         }
     }
     
-    public static class MyPeriod implements WatermarkGenerator<WaterSensor> {
+    public static class MyPeriod implements WatermarkGenerator<WaterSensor>{
         long maxTs = Long.MIN_VALUE + 3000 + 1;
-        long count = 0;
-        
+    
         @Override
         public void onEvent(WaterSensor event, long eventTimestamp, WatermarkOutput output) {
             System.out.println("来一条数据执行一次...");
             // 每来一条数据, 应该更新最大时间戳
             maxTs = Math.max(maxTs, eventTimestamp);
-            count++;
-            if (count % 2 == 0) {
-                
-                output.emitWatermark(new Watermark(maxTs - 3000 - 1));
-            }
         }
-        
+    
         @Override
         public void onPeriodicEmit(WatermarkOutput output) {
-            //System.out.println("周期的执行...");
+            System.out.println("周期的执行...");
             // 默认每200ms向数据中插入水印
-            //output.emitWatermark(new Watermark(maxTs - 3000 - 1));
+            output.emitWatermark(new Watermark(maxTs - 3000 - 1));
         }
     }
 }
-/*
-1. 水印的本质是一个时间戳, 用来表示 eventtime 语义下的当前时间
-2. 水印不会变小, 只会变大. 时间不会倒流
-3. 乱序数据: maxTs - 乱序程度 - 1ms
-4. 有序数据: 乱序程度是0 maxTs - 1ms
-5. 默认情况是周期性的更新水印, 周期的值默认是200ms,可以更改
-     env.getConfig().setAutoWatermarkInterval(3000);
-
-
- */
 

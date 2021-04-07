@@ -11,11 +11,13 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.time.Duration;
+
 /**
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink012_WaterMark_InOrder {
+public class Flink15_WaterMark_AllowLateness {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
@@ -33,7 +35,7 @@ public class Flink012_WaterMark_InOrder {
             // 分配水印
             .assignTimestampsAndWatermarks(
                 WatermarkStrategy
-                    .<WaterSensor>forMonotonousTimestamps()
+                    .<WaterSensor>forBoundedOutOfOrderness(Duration.ofSeconds(3))
                     .withTimestampAssigner(new SerializableTimestampAssigner<WaterSensor>() {
                         // 返回这条数据的事件时间, 必须是毫秒
                         @Override
@@ -44,6 +46,7 @@ public class Flink012_WaterMark_InOrder {
             )
             .keyBy(WaterSensor::getId)
             .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+            .allowedLateness(Time.seconds(2))
             .process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
                 @Override
                 public void process(String key,
@@ -71,4 +74,15 @@ public class Flink012_WaterMark_InOrder {
         }
     }
 }
+/*
+flink如果处理迟到数据(乱序)?
+1. 使用水印
+2. 允许迟到
+       时间到了, 先对窗口中的数据做计算, 但是窗口不关闭, 属于这个窗口数据来一条就计算一条
+       达到允许的时间就会关闭窗口, 以后迟到的数据就彻底进不了窗口
+       
+3. 放入侧输出流
+
+
+ */
 
