@@ -104,7 +104,7 @@ public class Flink014_WaterMark_Custom_1 {
 2. 水印不会变小, 只会变大. 时间不会倒流
 3. 乱序数据: maxTs - 乱序程度 - 1ms
 4. 有序数据: 乱序程度是0 maxTs - 1ms
-3. 默认情况是周期性的更新水印, 周期的值默认是200ms,可以更改
+5. 默认情况是周期性的更新水印, 周期的值默认是200ms,可以更改
      env.getConfig().setAutoWatermarkInterval(3000);
 
 

@@ -17,12 +17,12 @@ import java.time.Duration;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/6 11:23
  */
-public class Flink013_WaterMark_UnOrder {
+public class Flink015_WaterMark_AllowLateness {
     public static void main(String[] args) {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
-        env.setParallelism(2);
+        env.setParallelism(1);
         
         env
             .socketTextStream("hadoop162", 9999)
@@ -32,8 +32,6 @@ public class Flink013_WaterMark_UnOrder {
                                        Long.parseLong(data[1]) * 1000,
                                        Integer.valueOf(data[2]));
             })
-            .keyBy(WaterSensor::getId)
-            .map(x -> x)
             // 分配水印
             .assignTimestampsAndWatermarks(
                 WatermarkStrategy
@@ -48,6 +46,7 @@ public class Flink013_WaterMark_UnOrder {
             )
             .keyBy(WaterSensor::getId)
             .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+            .allowedLateness(Time.seconds(2))
             .process(new ProcessWindowFunction<WaterSensor, String, String, TimeWindow>() {
                 @Override
                 public void process(String key,
@@ -75,4 +74,15 @@ public class Flink013_WaterMark_UnOrder {
         }
     }
 }
+/*
+flink如果处理迟到数据(乱序)?
+1. 使用水印
+2. 允许迟到
+       时间到了, 先对窗口中的数据做计算, 但是窗口不关闭, 属于这个窗口数据来一条就计算一条
+       达到允许的时间就会关闭窗口, 以后迟到的数据就彻底进不了窗口
+       
+3. 放入侧输出流
+
+
+ */
 
