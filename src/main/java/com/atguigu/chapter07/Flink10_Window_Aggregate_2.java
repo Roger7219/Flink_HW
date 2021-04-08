@@ -47,7 +47,8 @@ public class Flink10_Window_Aggregate_2 {
                 public Tuple2<Long, Long> merge(Tuple2<Long, Long> a, Tuple2<Long, Long> b) {
                     return null;
                 }
-            })
+            }
+            )
             .print();
         
         try {

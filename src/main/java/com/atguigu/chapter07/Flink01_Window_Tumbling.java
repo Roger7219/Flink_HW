@@ -36,6 +36,7 @@ public class Flink01_Window_Tumbling {
                 }
             })
             .keyBy(t -> t.f0)
+                //每一个key对应一个窗口
             .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
             .process(new ProcessWindowFunction<Tuple2<String, Long>, String, String, TimeWindow>() {
                 @Override

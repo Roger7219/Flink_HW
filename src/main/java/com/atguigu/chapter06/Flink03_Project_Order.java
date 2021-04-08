@@ -40,8 +40,8 @@ public class Flink03_Project_Order {
                                    data[1],
                                    Long.valueOf(data[2]));
             });
-        
         // connect两个流
+
         orderEventStream
             .connect(txEventStream)
             .keyBy(OrderEvent::getTxId, TxEvent::getTxId)

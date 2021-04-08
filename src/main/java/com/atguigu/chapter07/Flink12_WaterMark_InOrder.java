@@ -21,7 +21,8 @@ public class Flink12_WaterMark_InOrder {
         conf.setInteger("rest.port", 20000);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         env.setParallelism(1);
-        
+
+        // 返回这条数据的事件时间, 必须是毫秒
         env
             .socketTextStream("hadoop162", 9999)
             .map(line -> {
@@ -34,13 +35,7 @@ public class Flink12_WaterMark_InOrder {
             .assignTimestampsAndWatermarks(
                 WatermarkStrategy
                     .<WaterSensor>forMonotonousTimestamps()
-                    .withTimestampAssigner(new SerializableTimestampAssigner<WaterSensor>() {
-                        // 返回这条数据的事件时间, 必须是毫秒
-                        @Override
-                        public long extractTimestamp(WaterSensor element, long recordTimestamp) {
-                            return element.getTs();
-                        }
-                    })
+                    .withTimestampAssigner((SerializableTimestampAssigner<WaterSensor>) (element, recordTimestamp) -> element.getTs())
             )
             .keyBy(WaterSensor::getId)
             .window(TumblingEventTimeWindows.of(Time.seconds(5)))

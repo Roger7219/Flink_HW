@@ -35,7 +35,8 @@ public class Flink10_Window_Aggregate {
             })
             .keyBy(t -> t.f0)
             .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))
-            .aggregate(
+            //针对的是一次流（读取的一次数据）
+                .aggregate(
                 new AggregateFunction<Tuple2<String, Long>, Long, Long>() {
                     // 针对每个key的每个窗口: 第一个元素进来的时候触发
                     @Override

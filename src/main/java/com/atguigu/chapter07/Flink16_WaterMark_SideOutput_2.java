@@ -24,7 +24,7 @@ public class Flink16_WaterMark_SideOutput_2 {
         Configuration conf = new Configuration();
         conf.setInteger("rest.port", 20000);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
-        env.setParallelism(1);
+        env.setParallelism(2);
         
         OutputTag<WaterSensor> outputTagS2 = new OutputTag<WaterSensor>("sensor_2") {};
         OutputTag<WaterSensor> outputTagS3 = new OutputTag<WaterSensor>("other_sensor") {};
