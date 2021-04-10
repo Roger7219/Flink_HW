@@ -107,7 +107,6 @@ public class Flink03_Project_High_HotPage {
                             return result == 0 ? 1 : result;  // 不让返回0, 是为了必须treeSet去重
                         });
                         pageState.update(pageCount);
-                        
                         // 注册定时器
                         long timerTime = value.getWindowEnd() + 10000L;
                         ctx.timerService().registerEventTimeTimer(timerTime);
