@@ -6,10 +6,13 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternSelectFunction;
 import org.apache.flink.cep.PatternStream;
+import org.apache.flink.cep.PatternTimeoutFunction;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.SimpleCondition;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.OutputTag;
 
 import java.time.Duration;
 import java.util.List;
@@ -19,7 +22,7 @@ import java.util.Map;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/10 14:01
  */
-public class Flink04_CEP_Combination {
+public class Flink07_CEP_WithInt {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -43,47 +46,48 @@ public class Flink04_CEP_Combination {
         
         // 1. 定义模式
         Pattern<WaterSensor, WaterSensor> pattern = Pattern
+        
             .<WaterSensor>begin("start")
             .where(new SimpleCondition<WaterSensor>() {
                 @Override
                 public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_1");
-                }
-            })
-            //            .next("next")  // 严格连续(严格近邻)
-            //            .followedBy("follow") // 松散连续(非严格紧邻)
-            //            .followedByAny("follow") // 非确定性松散连续(非确定性非严格紧邻)  比followedBy结果要多
-            //            .notNext("not_next")
-            .notFollowedBy("not_follow")
-            .where(new SimpleCondition<WaterSensor>() {
-                @Override
-                public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_2");
+                    return "sensor_1".equalsIgnoreCase(value.getId());
                 }
             })
             .next("next")
             .where(new SimpleCondition<WaterSensor>() {
                 @Override
                 public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_1");
+                    return "sensor_2".equalsIgnoreCase(value.getId());
                 }
-            });
-            
-            
+            })
+            .within(Time.seconds(2));
         
+        // 量词只能修饰与他最近的模式
         // 2. 把模式运用在流上, 返回值就是复合模式的数据组成的流
         PatternStream<WaterSensor> ps = CEP.pattern(waterSensorStream, pattern);
         
         // 3. 获取满足模式的数据(放在流中)
-        ps
-            .select(new PatternSelectFunction<WaterSensor, String>() {
+        SingleOutputStreamOperator<String> main = ps.select(
+            new OutputTag<String>("late") {},
+            new PatternTimeoutFunction<WaterSensor, String>() {
+                @Override
+                public String timeout(Map<String, List<WaterSensor>> pattern,
+                                      long timeoutTimestamp) throws Exception {
+                    return pattern.toString();
+                }
+            },
+            new PatternSelectFunction<WaterSensor, String>() {
                 @Override
                 public String select(Map<String, List<WaterSensor>> pattern) throws Exception {
                     return pattern.toString();
                 }
-            })
-            .print();
-        
+            }
+        );
+        main.print("normal");
+    
+        main.getSideOutput(new OutputTag<String>("late") {}).print("late");
+    
         env.execute();
         
     }

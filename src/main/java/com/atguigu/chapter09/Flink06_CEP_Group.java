@@ -19,7 +19,7 @@ import java.util.Map;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/10 14:01
  */
-public class Flink04_CEP_Combination {
+public class Flink06_CEP_Group {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -43,34 +43,26 @@ public class Flink04_CEP_Combination {
         
         // 1. 定义模式
         Pattern<WaterSensor, WaterSensor> pattern = Pattern
-            .<WaterSensor>begin("start")
-            .where(new SimpleCondition<WaterSensor>() {
-                @Override
-                public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_1");
-                }
-            })
-            //            .next("next")  // 严格连续(严格近邻)
-            //            .followedBy("follow") // 松散连续(非严格紧邻)
-            //            .followedByAny("follow") // 非确定性松散连续(非确定性非严格紧邻)  比followedBy结果要多
-            //            .notNext("not_next")
-            .notFollowedBy("not_follow")
-            .where(new SimpleCondition<WaterSensor>() {
-                @Override
-                public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_2");
-                }
-            })
-            .next("next")
-            .where(new SimpleCondition<WaterSensor>() {
-                @Override
-                public boolean filter(WaterSensor value) throws Exception {
-                    return value.getId().equalsIgnoreCase("sensor_1");
-                }
-            });
-            
-            
+            .begin(
+                Pattern
+                    .<WaterSensor>begin("start")
+                    .where(new SimpleCondition<WaterSensor>() {
+                        @Override
+                        public boolean filter(WaterSensor value) throws Exception {
+                            return "sensor_1".equalsIgnoreCase(value.getId());
+                        }
+                    })
+                    .next("next")
+                    .where(new SimpleCondition<WaterSensor>() {
+                        @Override
+                        public boolean filter(WaterSensor value) throws Exception {
+                            return "sensor_2".equalsIgnoreCase(value.getId());
+                        }
+                    })
+            )
+            .times(2);
         
+        // 量词只能修饰与他最近的模式
         // 2. 把模式运用在流上, 返回值就是复合模式的数据组成的流
         PatternStream<WaterSensor> ps = CEP.pattern(waterSensorStream, pattern);
         
