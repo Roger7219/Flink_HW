@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/10 10:30
  */
-public class Flink_Project_High_Login {
+public class Flink05_Project_High_Login {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(2);
