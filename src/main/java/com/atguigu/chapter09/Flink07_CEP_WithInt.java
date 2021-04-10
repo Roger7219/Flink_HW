@@ -46,7 +46,6 @@ public class Flink07_CEP_WithInt {
         
         // 1. 定义模式
         Pattern<WaterSensor, WaterSensor> pattern = Pattern
-        
             .<WaterSensor>begin("start")
             .where(new SimpleCondition<WaterSensor>() {
                 @Override
@@ -84,11 +83,10 @@ public class Flink07_CEP_WithInt {
                 }
             }
         );
-        main.print("normal");
-    
-        main.getSideOutput(new OutputTag<String>("late") {}).print("late");
-    
-        env.execute();
         
+        main.print("normal");
+        main.getSideOutput(new OutputTag<String>("late") {}).print("late");
+        
+        env.execute();
     }
 }
