@@ -28,6 +28,7 @@ import java.util.ArrayList;
 public class Flink02_Project_High_HotItem {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(3);
         env
             .readTextFile("input/UserBehavior.csv")
             .map(line -> { // 对数据切割, 然后封装到POJO中
@@ -104,6 +105,7 @@ public class Flink02_Project_High_HotItem {
                     hotItemState.add(ele);
                     
                     // 当第一个进来的时候, 定义一个定时器: 触发时间 ele.getWindowEndTime() + 10s
+                    //引入定时器状态是为了找出第一个进来的数据
                     if (timerState.value() == null) {
                         long timerTime = ele.getWindowEndTime() + 10000L;
                         ctx.timerService().registerEventTimeTimer(timerTime);

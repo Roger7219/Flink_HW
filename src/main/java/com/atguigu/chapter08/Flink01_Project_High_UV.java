@@ -22,6 +22,7 @@ import java.time.Duration;
 public class Flink01_Project_High_UV {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(2);
         env
             .readTextFile("input/UserBehavior.csv")
             .map(line -> { // 对数据切割, 然后封装到POJO中
