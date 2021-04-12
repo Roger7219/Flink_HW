@@ -1,4 +1,4 @@
-package com.atguigu.chapter;
+package com.atguigu.chapter11;
 
 import com.atguigu.bean.WaterSensor;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -44,6 +44,7 @@ public class Flink01_Table_BaseUse_Agg {
             .select($("id"), $("vc").sum().as("sum_vc"), $("vc").count().as("vc_count"));
     
         t1.execute().print();
+        
     
        /* DataStream<Tuple2<Boolean, Row>> result = tenv.toRetractStream(t1, Row.class);
         result.filter(t -> t.f0).map(t -> t.f1).print();
