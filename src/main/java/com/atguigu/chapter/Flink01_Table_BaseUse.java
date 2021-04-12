@@ -36,8 +36,8 @@ public class Flink01_Table_BaseUse {
         
         // select .. from t1 where id=..
         Table t1 = table
-            .where($("id").isEqual("sensor_1"))
-            .select($("id"), $("ts").as("tt"), $("vc"));
+            .select($("id"), $("ts").as("tt"), $("vc"))
+            .where($("id").isEqual("sensor_1"));
         // 4. 把查询结果的动态表转成流, 写出去
         t1.execute().print();
         //        DataStream<Row> ds = tenv.toAppendStream(t1, Row.class);
