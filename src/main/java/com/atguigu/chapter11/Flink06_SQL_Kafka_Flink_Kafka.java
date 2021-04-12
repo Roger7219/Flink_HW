@@ -7,7 +7,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/12 15:27
  */
-public class Flink05_SQL_Kafka_Flink_Kafka {
+public class Flink06_SQL_Kafka_Flink_Kafka {
     public static void main(String[] args) {
     
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
