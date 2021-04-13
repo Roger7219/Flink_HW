@@ -11,6 +11,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 public class Flink08_Time_SQL_Process {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        
         env.setParallelism(1);
         StreamTableEnvironment tenv = StreamTableEnvironment.create(env);
         tenv.executeSql("create table sensor(" +
