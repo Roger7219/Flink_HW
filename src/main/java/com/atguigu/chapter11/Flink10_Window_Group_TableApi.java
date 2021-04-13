@@ -17,7 +17,7 @@ import static org.apache.flink.table.api.Expressions.lit;
  * @Author lizhenchao@atguigu.cn
  * @Date 2021/4/13 10:48
  */
-public class Flink10_Window_Group_Tumbling {
+public class Flink10_Window_Group_TableApi {
     
     public static void main(String[] args) {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
