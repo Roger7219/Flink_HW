@@ -25,31 +25,30 @@ public class Test {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStreamSource<WaterSensor> wsd = env.fromElements(new WaterSensor("sensor_1", 1000L, 10),
-                new WaterSensor("sensor_1", 2000L, 20),
-                new WaterSensor("sensor_2", 3000L, 30),
-                new WaterSensor("sensor_1", 4000L, 40),
-                new WaterSensor("sensor_1", 5000L, 50),
-                new WaterSensor("sensor_2", 6000L, 60));
-        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+        StreamTableEnvironment tenv = StreamTableEnvironment.create(env);
+        tenv.executeSql(" create table sensor( " +
+                "id string, " +
+                "ts bigint, " +
+                "vc int," +
+                "t as to_timestamp(from_unixtime(ts,'yyyy-MM-dd HH:mm:ss')), " +
+                " watermark for t as t - interval '5' second) " +
+                "with( " +
+                " 'connector' = 'filesystem' , " +
+                " 'path' = 'input/sensor.txt', " +
+                " 'format' = 'csv' " +
+                " ) "
 
+        );
 
-        Schema field = new Schema().field("id", DataTypes.STRING()).field("ts", DataTypes.BIGINT())
-                .field("vc", DataTypes.INT());
-
-        tableEnv.connect(new Kafka()
-                .version("universal")
-                .property("bootstrap.servers", "hadoop162:9092,hadoop163:9092")
-                .property("group.id", "Flink02_Table_Source_Kafka")
-                .topic("s1")
-                .startFromLatest()
+        tenv.sqlQuery("select " +
+                " id, " +
+                "TUMBLE_START(t,interval '2' second), " +
+                "TUMBLE_END(t,interval '2' second), " +
+                "sum(vc) vc_sum " +
+                "from sensor " +
+                "group by id,TUMBLE(t,interval '2' second)"
         )
-                .withSchema(field)
-                .withFormat(new Json())
-                .createTemporaryTable("sensor");
-        Table sensor = tableEnv.from("sensor");
-        sensor.execute().print();
-
+                .execute().print();
 
     }
 }

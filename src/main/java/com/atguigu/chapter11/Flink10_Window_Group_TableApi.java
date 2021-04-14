@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Session;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.Tumble;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.time.Duration;
@@ -43,7 +44,8 @@ public class Flink10_Window_Group_TableApi {
         table
             //            .window(Tumble.over(lit(5).second()).on($("ts")).as("w"))
 //            .window(Slide.over(lit(5).second()).every(lit(2).second()).on($("ts")).as("w"))
-            .window(Session.withGap(lit(2).second()).on($("ts")).as("w"))
+//            .window(Session.withGap(lit(2).second()).on($("ts")).as("w"))
+                .window(Tumble.over(lit(2).second()).on($("ts")).as("w"))
             .groupBy($("id"), $("w"))   // 使用窗口的目的是为了分组
             .select($("id"), $("w").start().as("w_start"), $("w").end().as("w_end"), $("vc").sum().as("vc_sum"))
             .execute()
